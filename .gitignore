@@ -5,6 +5,7 @@
 
 # saved documents
 /docs
+/images
 
 #misc
 .DS_Store
