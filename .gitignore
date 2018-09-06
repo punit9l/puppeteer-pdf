@@ -4,8 +4,8 @@
 /node_modules
 
 # saved documents
-/docs
-/images
+docs
+images
 
 #misc
 .DS_Store
