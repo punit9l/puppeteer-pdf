@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/punit9l/puppeteer-pdf/issues"
   },
-  "homepage": "https://github.com/punit9l/puppeteer-pdf#readme"
+  "homepage": "https://github.com/punit9l/puppeteer-pdf#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "puppeteer": "^1.7.0",
+    "uuid": "^3.3.2"
+  }
 }
