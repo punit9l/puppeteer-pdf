@@ -3,17 +3,12 @@ const express = require('express')
 const app = express()
 
 async function createPdf(pageUrl, type) {
-    const browser = await puppeteer.launch({
-        headless: true
-    });
+    const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
     await page.setViewport({ width: 1366, height: 768});
     await page.emulateMedia('screen');
     await page.goto(pageUrl, { waitUntil: 'networkidle2' });
-    
-    await page.waitFor(1000);
-
     
     const uuidv5 = require('uuid/v5');
     const uid = uuidv5(pageUrl, uuidv5.URL)
@@ -33,7 +28,7 @@ async function createPdf(pageUrl, type) {
     } else {
         await page.pdf({
             path: 'docs/'+pdffilename,
-            format: 'A4',
+            format: 'Tabloid',
             printBackground: true,
             displayHeaderFooter: true
         });
@@ -42,8 +37,37 @@ async function createPdf(pageUrl, type) {
     }
 }
 
+function isURL(str) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return pattern.test(str);
+  }
+
 app.get('/', async (req, res, next) => {
-    if (req.query.url) {
+
+    // const urlToConvert = req.query.q;
+
+    const queryParams = req.query;
+
+    var url = ""
+    for (var key in queryParams) {
+        if (queryParams.hasOwnProperty(key)) {
+
+            var foo = key == "url" ? "" : key+"="
+
+            url += foo+queryParams[key] + "&"
+        }
+    }
+
+    const urlToConvert = url.replace(/&\s*$/, ""); // remove "&" at the end
+
+    console.log(urlToConvert)
+
+    if (urlToConvert) {
 
         var options = {
             root: __dirname + '/docs/',
@@ -54,8 +78,8 @@ app.get('/', async (req, res, next) => {
             }
         };
 
-        const filename = await createPdf(req.query.url, req.query.type);
-        console.log(filename)
+        const filename = await createPdf(urlToConvert, req.query.t);
+        // console.log(filename)
 
         res.sendFile(filename, options, function(err) {
             if (err) {
@@ -65,10 +89,9 @@ app.get('/', async (req, res, next) => {
             }
         });
     } else {
-        res.status(404).send("Please pass a url as param")
+        res.status(404).send("Please pass a valid url as param")
     }
 })
 
 const port = process.env.PORT || 3000;
-console.log(JSON.stringify(process.env.port))
 app.listen(port, () => console.log(`Server running on port ${port}`))
