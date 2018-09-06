@@ -1,0 +1,19 @@
+{
+  "name": "puppeteer-pdf",
+  "version": "1.0.0",
+  "description": "create a web page to pdf using puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punit9l/puppeteer-pdf.git"
+  },
+  "author": "Puni",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/punit9l/puppeteer-pdf/issues"
+  },
+  "homepage": "https://github.com/punit9l/puppeteer-pdf#readme"
+}
