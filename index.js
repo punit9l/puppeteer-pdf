@@ -2,10 +2,7 @@ const puppeteer = require('puppeteer');
 const express = require('express')
 const app = express()
 
-
-const timeout = ms => new Promise(res => setTimeout(res, ms))
-
-async function createPdf(pageUrl) {
+async function createPdf(pageUrl, type) {
     const browser = await puppeteer.launch({
         headless: true
     });
@@ -25,20 +22,24 @@ async function createPdf(pageUrl) {
 
     const pngfilename = uid+'.png'
 
-    await page.screenshot({
-        path: 'images/'+pngfilename,
-        fullPage: true
-    });
 
-    await page.pdf({
-        path: 'docs/'+pdffilename,
-        format: 'A4',
-        printBackground: true,
-        displayHeaderFooter: true
-    });
-    await browser.close();
-    return pdffilename
-
+    if(type == 'png') {
+        await page.screenshot({
+            path: 'docs/'+pngfilename,
+            fullPage: true
+        });
+        await browser.close();
+        return pngfilename
+    } else {
+        await page.pdf({
+            path: 'docs/'+pdffilename,
+            format: 'A4',
+            printBackground: true,
+            displayHeaderFooter: true
+        });
+        await browser.close();
+        return pdffilename
+    }
 }
 
 app.get('/', async (req, res, next) => {
@@ -53,7 +54,7 @@ app.get('/', async (req, res, next) => {
             }
         };
 
-        const filename = await createPdf(req.query.url);
+        const filename = await createPdf(req.query.url, req.query.type);
         console.log(filename)
 
         res.sendFile(filename, options, function(err) {
