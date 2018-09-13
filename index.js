@@ -26,11 +26,12 @@ async function createPdf(pageUrl, type) {
         await browser.close();
         return pngfilename
     } else {
+
         await page.pdf({
             path: 'docs/'+pdffilename,
             format: 'Tabloid',
             printBackground: true,
-            displayHeaderFooter: true
+            displayHeaderFooter: false,
         });
         await browser.close();
         return pdffilename
