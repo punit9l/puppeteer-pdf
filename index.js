@@ -45,29 +45,15 @@ function isURL(str) {
     '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
     '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
     return pattern.test(str);
-  }
+}
 
 app.get('/', async (req, res, next) => {
 
-    // const urlToConvert = req.query.q;
+    const download = req.query.d;
+    const urlToConvert = Buffer.from(req.query.url, 'base64').toString();
+    const fileType = req.query.t;
 
-    const queryParams = req.query;
-
-    var url = ""
-    for (var key in queryParams) {
-        if (queryParams.hasOwnProperty(key)) {
-
-            var foo = key == "url" ? "" : key+"="
-
-            url += foo+queryParams[key] + "&"
-        }
-    }
-
-    const urlToConvert = url.replace(/&\s*$/, ""); // remove "&" at the end
-
-    console.log(urlToConvert)
-
-    if (urlToConvert) {
+    if (isURL(urlToConvert)) {
 
         var options = {
             root: __dirname + '/docs/',
@@ -78,16 +64,30 @@ app.get('/', async (req, res, next) => {
             }
         };
 
-        const filename = await createPdf(urlToConvert, req.query.t);
-        // console.log(filename)
+        const filename = await createPdf(urlToConvert, fileType);
 
-        res.sendFile(filename, options, function(err) {
-            if (err) {
-                next(err);
-            } else {
-                console.log('Sent:', filename);
-            }
-        });
+        if(download) {
+            res.download("docs/"+filename, filename, function(err){
+                if (err) {
+                    // Handle error, but keep in mind the response may be partially-sent
+                    // so check res.headersSent
+                    console.log("File downloaded error");
+                    console.log(err);
+                } else {
+                    // decrement a download credit, etc.
+                    console.log("File downloaded");
+                    console.log("Downloaded:", filename)
+                }
+            });
+        } else {
+            res.sendFile(filename, options, function(err) {
+                if (err) {
+                    next(err);
+                } else {
+                    console.log('Sent:', filename);
+                }
+            });
+        }
     } else {
         res.status(404).send("Please pass a valid url as param")
     }
